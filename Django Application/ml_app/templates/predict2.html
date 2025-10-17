@@ -1,0 +1,128 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prediction Results</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f8f9fa;
+      font-family: Arial, sans-serif;
+    }
+    .logo img {
+      max-height: 80px;
+    }
+    .preprocess, .faces {
+      border-radius: 8px;
+      margin: 5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    .result {
+      margin-top: 30px;
+    }
+    video {
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+  </style>
+</head>
+<body>
+
+<div class="container py-4">
+
+  <div class="logo text-center mb-3">
+    <img src="{% static 'images/logo1.png' %}" alt="Logo">
+  </div>
+  <hr />
+
+  {% if no_faces %}
+    <div class="alert alert-danger text-center">
+      <strong>No faces detected.</strong> Cannot process the video.
+    </div>
+  {% else %}
+
+    <h3>Frames Split</h3>
+    <div class="d-flex flex-wrap mb-4">
+      {% for each_image in preprocessed_images %}
+        <img src="{% static each_image %}" class="preprocess" height="250" />
+      {% endfor %}
+    </div>
+
+    <h3>Face Cropped Frames</h3>
+    <div class="d-flex flex-wrap mb-4">
+      {% for each_image in faces_cropped_images %}
+        <img src="{% static each_image %}" class="faces" height="150" />
+      {% endfor %}
+    </div>
+
+    <div class="result text-center">
+      <h3>Play to see Result</h3>
+      <video id="predict-media" controls width="640" height="320">
+        <source src="{{ MEDIA_URL }}{{ original_video }}" type="video/mp4" codecs="avc1.4d002a" />
+      </video>
+
+      {% if output == "REAL" %}
+        <h4 class="mt-3">Result: <span class="text-success">{{ output }}</span></h4>
+        <img src="{% static 'images/thumpup.png' %}" alt="real" height="100">
+      {% else %}
+        <h4 class="mt-3">Result: <span class="text-danger">{{ output }}</span></h4>
+        <img src="{% static 'images/thumpdown.png' %}" alt="fake" height="100">
+      {% endif %}
+    </div>
+
+  {% endif %}
+
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="{% static 'js/face-api.min.js' %}"></script>
+<script>
+  $(document).ready(function () {
+    const video = document.getElementById("predict-media");
+
+    Promise.all([
+      faceapi.nets.ssdMobilenetv1.loadFromUri('/static/json'),
+      faceapi.nets.tinyFaceDetector.loadFromUri('/static/json')
+    ])
+
+    let detectionInterval;
+    video.addEventListener("playing", () => {
+      let canvas;
+      if ($('canvas').length < 1) {
+        canvas = faceapi.createCanvasFromMedia(video);
+        canvas.style.position = "absolute";
+        canvas.style.top = video.offsetTop + "px";
+        canvas.style.left = video.offsetLeft + "px";
+        document.body.append(canvas);
+      }
+
+      const displaySize = { width: video.width, height: video.height - 60 };
+      faceapi.matchDimensions(canvas, displaySize);
+
+      detectionInterval = setInterval(async () => {
+        const detections = await faceapi.detectAllFaces(video);
+        const resizedDetections = faceapi.resizeResults(detections, displaySize);
+        canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
+
+        resizedDetections.forEach(det => {
+          const result = "{{ output }}";
+          const confidence = "{{ confidence }}";
+          const drawOptions = { label: result + " " + confidence + "%" };
+          drawOptions.boxColor = (result === "REAL") ? "#0f0" : "#f00";
+
+          const box = { x: det.box.x, y: det.box.y, height: 100, width: 100 };
+          new faceapi.draw.DrawBox(box, drawOptions).draw(canvas);
+        });
+      }, 500); // detect every 0.5s
+    });
+
+    video.addEventListener("paused", () => {
+      clearTimeout(detectionInterval);
+    });
+  });
+</script>
+
+</body>
+</html>

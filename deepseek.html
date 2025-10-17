@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeepGuard | Advanced Deepfake Detection</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #10b981;
+            --dark: #1f2937;
+            --darker: #111827;
+            --light: #f3f4f6;
+            --accent: #8b5cf6;
+            --danger: #ef4444;
+            --gray: #6b7280;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(to bottom, var(--darker), #000);
+            color: var(--light);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        /* Navbar Styles */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.2rem 5%;
+            background: rgba(17, 24, 39, 0.8);
+            backdrop-filter: blur(10px);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo-text {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .logo-icon {
+            color: var(--primary);
+            font-size: 1.8rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .nav-links a {
+            color: var(--light);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            position: relative;
+        }
+        
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+        
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            transition: width 0.3s;
+        }
+        
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+        
+        .auth-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            outline: none;
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+        
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+        
+        /* Hero Section */
+        .hero {
+            padding: 8rem 5% 5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            min-height: 100vh;
+            position: relative;
+        }
+        
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.2;
+            z-index: -1;
+            background: url('https://images.unsplash.com/photo-1620712943543-bcc4688e7485?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1700&q=80') center/cover no-repeat;
+        }
+        
+        .hero-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(to right, #fff, var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--gray);
+            margin-bottom: 2.5rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        /* Upload Section */
+        .upload-section {
+            background: rgba(31, 41, 55, 0.6);
+            backdrop-filter: blur(10px);
+            padding: 2.5rem;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 700px;
+            margin: 2rem auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .upload-area {
+            border: 2px dashed var(--primary);
+            border-radius: 12px;
+            padding: 2.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 1.5rem;
+        }
+        
+        .upload-area:hover {
+            border-color: var(--accent);
+            background: rgba(99, 102, 241, 0.05);
+        }
+        
+        .upload-icon {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .sequence-selector {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        
+        .sequence-selector label {
+            font-weight: 500;
+        }
+        
+        .sequence-selector select {
+            background: var(--darker);
+            color: white;
+            border: 1px solid var(--gray);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            outline: none;
+        }
+        
+        /* 3D Visualization */
+        .visualization {
+            margin: 5rem 0;
+            text-align: center;
+        }
+        
+        .visualization h2 {
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            color: white;
+        }
+        
+        .cube-container {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 3rem;
+            perspective: 800px;
+        }
+        
+        .cube {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            animation: rotate 15s infinite linear;
+        }
+        
+        .cube-face {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            background: rgba(79, 70, 229, 0.8);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            backdrop-filter: blur(5px);
+        }
+        
+        .front { transform: translateZ(100px); }
+        .back { transform: rotateY(180deg) translateZ(100px); }
+        .right { transform: rotateY(90deg) translateZ(100px); }
+        .left { transform: rotateY(-90deg) translateZ(100px); }
+        .top { transform: rotateX(90deg) translateZ(100px); }
+        .bottom { transform: rotateX(-90deg) translateZ(100px); }
+        
+        @keyframes rotate {
+            from { transform: rotateX(0) rotateY(0) rotateZ(0); }
+            to { transform: rotateX(360deg) rotateY(360deg) rotateZ(360deg); }
+        }
+        
+        /* Info Section */
+        .info-section {
+            padding: 5rem 5%;
+            background: var(--dark);
+        }
+        
+        .info-section h2 {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .info-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .info-card {
+            background: linear-gradient(to bottom right, var(--darker), #000);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s;
+        }
+        
+        .info-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .info-card h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+        
+        /* Team Section */
+        .team-section {
+            padding: 5rem 5%;
+            text-align: center;
+        }
+        
+        .team-section h2 {
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+        }
+        
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2.5rem;
+            margin-top: 2rem;
+        }
+        
+        .team-member {
+            background: linear-gradient(to bottom right, var(--darker), #000);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s;
+        }
+        
+        .team-member:hover {
+            transform: translateY(-5px);
+        }
+        
+        .member-img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 auto 1rem;
+            border: 3px solid var(--primary);
+        }
+        
+        .member-name {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .member-role {
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .social-links a {
+            color: var(--light);
+            font-size: 1.2rem;
+            transition: color 0.3s;
+        }
+        
+        .social-links a:hover {
+            color: var(--primary);
+        }
+        
+        /* Footer */
+        footer {
+            background: var(--darker);
+            padding: 3rem 5%;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .footer-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        
+        .footer-logo {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .footer-links a {
+            color: var(--gray);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer-links a:hover {
+            color: var(--primary);
+        }
+        
+        .copyright {
+            color: var(--gray);
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 1rem;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .hero p {
+                font-size: 1rem;
+            }
+            
+            .upload-section {
+                padding: 1.5rem;
+            }
+            
+            .upload-area {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="logo">
+            <i class="fas fa-shield-alt logo-icon"></i>
+            <span class="logo-text">DeepGuard</span>
+        </div>
+        
+        <div class="nav-links">
+            <a href="#">Home</a>
+            <a href="#">Detection</a>
+            <a href="#">How It Works</a>
+            <a href="#">About</a>
+            <a href="#">Contact</a>
+        </div>
+        
+        <div class="auth-buttons">
+            <button class="btn btn-outline">Login</button>
+            <button class="btn btn-primary">Sign Up</button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-bg"></div>
+        <div class="hero-content">
+            <h1>Advanced Deepfake Detection Technology</h1>
+            <p>Protect yourself from digital deception with our AI-powered deepfake detection system. Analyze videos with precision and confidence.</p>
+            
+            <div class="upload-section">
+                <div class="upload-area">
+                    <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                    <h3>Upload Video for Analysis</h3>
+                    <p>Click to browse or drag and drop your video file</p>
+                    <input type="file" class="file-input" accept="video/*">
+                </div>
+                
+                <div class="sequence-selector">
+                    <label for="sequence-length">Sequence Length:</label>
+                    <select id="sequence-length">
+                        <option value="10">10 frames</option>
+                        <option value="20" selected>20 frames</option>
+                        <option value="30">30 frames</option>
+                        <option value="40">40 frames</option>
+                    </select>
+                </div>
+                
+                <button class="btn btn-primary" style="width: 100%;">
+                    <i class="fas fa-search"></i> Analyze Video
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3D Visualization -->
+    <section class="visualization">
+        <h2>How Our Detection Technology Works</h2>
+        <div class="cube-container">
+            <div class="cube">
+                <div class="cube-face front">AI</div>
+                <div class="cube-face back">ML</div>
+                <div class="cube-face right">NN</div>
+                <div class="cube-face left">DL</div>
+                <div class="cube-face top">CV</div>
+                <div class="cube-face bottom">API</div>
+            </div>
+        </div>
+        <p>Our technology uses advanced neural networks and machine learning algorithms to detect subtle artifacts in deepfake videos.</p>
+    </section>
+
+    <!-- Info Section -->
+    <section class="info-section">
+        <h2>Understanding Deepfakes</h2>
+        <div class="info-cards">
+            <div class="info-card">
+                <h3>What are Deepfakes?</h3>
+                <p>Deepfakes are synthetic media in which a person in an existing image or video is replaced with someone else's likeness using artificial intelligence.</p>
+            </div>
+            <div class="info-card">
+                <h3>Why are they dangerous?</h3>
+                <p>Deepfakes can be used to create misleading content, fake news, and fraudulent material that can harm individuals and organizations.</p>
+            </div>
+            <div class="info-card">
+                <h3>How to detect them?</h3>
+                <p>Our AI analyzes facial movements, blinking patterns, and subtle artifacts that are often missed by the naked eye to identify deepfakes.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Team Section -->
+    <section class="team-section">
+        <h2>Our Development Team</h2>
+        <div class="team-grid">
+            <div class="team-member">
+                <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Team Member" class="member-img">
+                <h3 class="member-name">Alex Johnson</h3>
+                <p class="member-role">Lead AI Researcher</p>
+                <p>Expert in machine learning and computer vision with 10+ years of experience.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                    <a href="#"><i class="fab fa-github"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                </div>
+            </div>
+            <div class="team-member">
+                <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Team Member" class="member-img">
+                <h3 class="member-name">Sarah Williams</h3>
+                <p class="member-role">Full Stack Developer</p>
+                <p>Specializes in building scalable web applications and API integrations.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                    <a href="#"><i class="fab fa-github"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                </div>
+            </div>
+            <div class="team-member">
+                <img src="https://randomuser.me/api/portraits/men/22.jpg" alt="Team Member" class="member-img">
+                <h3 class="member-name">Michael Chen</h3>
+                <p class="member-role">Data Scientist</p>
+                <p>Focuses on neural networks and deep learning model optimization.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                    <a href="#"><i class="fab fa-github"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">DeepGuard</div>
+            <div class="footer-links">
+                <a href="#">Home</a>
+                <a href="#">Detection</a>
+                <a href="#">Technology</a>
+                <a href="#">About Us</a>
+                <a href="#">Contact</a>
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+            </div>
+            <div class="copyright">
+                &copy; 2025 DeepGuard | Advanced Deepfake Detection System. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Simple animation for the page elements
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add animation to elements when they come into view
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = 1;
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            // Observe elements that need to animate
+            const animatedElements = document.querySelectorAll('.info-card, .team-member, .upload-section');
+            animatedElements.forEach(el => {
+                el.style.opacity = 0;
+                el.style.transform = 'translateY(20px)';
+                el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                observer.observe(el);
+            });
+            
+            // File upload interaction
+            const uploadArea = document.querySelector('.upload-area');
+            const fileInput = document.querySelector('.file-input');
+            
+            uploadArea.addEventListener('click', () => {
+                fileInput.click();
+            });
+            
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = '#10b981';
+                uploadArea.style.backgroundColor = 'rgba(16, 185, 129, 0.1)';
+            });
+            
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.style.borderColor = '#6366f1';
+                uploadArea.style.backgroundColor = 'transparent';
+            });
+            
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = '#6366f1';
+                uploadArea.style.backgroundColor = 'transparent';
+                
+                if (e.dataTransfer.files.length) {
+                    fileInput.files = e.dataTransfer.files;
+                    alert('File selected: ' + e.dataTransfer.files[0].name);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

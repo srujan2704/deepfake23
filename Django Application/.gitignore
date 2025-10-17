@@ -1,7 +1,8 @@
 venv
 .vs
 .vscode
-models/*
+
+
 !models/Readme.txt
 uploaded_images/*
 !uploaded_images/Readme.txt
