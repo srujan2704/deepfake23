@@ -27,7 +27,6 @@
 #     '0.0.0.0',
 # ]
 
-
 # # Application definition
 
 # INSTALLED_APPS = [
@@ -242,11 +241,11 @@ SECRET_KEY = '@)0qp0!&-vht7k0wyuihr+nk-b8zrvb5j^1d@vl84cd1%)f=dz'
 DEBUG = True
 
 # Change and set this to correct IP/Domain
-ALLOWED_HOSTS=['srujanbelamgi.pythonanywhere.com', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS=['deepfake23.onrender.com', 'localhost', '127.0.0.1']
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
@@ -270,6 +269,7 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'corsheaders.middleware.CorsMiddleware'
 ]
 
