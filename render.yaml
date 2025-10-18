@@ -1,0 +1,24 @@
+
+services:
+  - type: web
+    name: deepfake23
+    env: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn YOUR_PROJECT_NAME.asgi:application -k uvicorn.workers.UvicornWorker"
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: Django Application.settings
+      - key: PYTHON_VERSION
+        value: 3.10.14
+      - key: SECRET_KEY
+        generateValue: true
+      - key: WEB_CONCURRENCY
+        value: 4
+      - key: DATABASE_URL
+        fromDatabase:
+          name: deepfake23-db
+          property: connectionString
+
+databases:
+  - name: deepfake23-db
+    plan: free
